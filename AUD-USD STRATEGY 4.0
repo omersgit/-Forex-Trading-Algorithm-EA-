@@ -6,9 +6,9 @@
 #property strict
 
 
-double input lotsize = 1;     //Lot Size
-int input Max_profit = 12;    //Profit to close 50% (In Pips)
-int input Max_TP = 50;        //Maximum Profit to close all (in Pips)
+double input lotsize = X;     //Lot Size
+int input Max_profit = X;    //Profit to close 50% (In Pips)
+int input Max_TP = X;        //Maximum Profit to close all (in Pips)
 
 int magic_Num = 368361123;
 datetime LastTime;
