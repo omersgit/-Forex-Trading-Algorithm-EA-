@@ -1,0 +1,150 @@
+//+------------------------------------------------------------------+
+//|                                      Forex Trading Algorithm.mq4 |
+//+------------------------------------------------------------------+
+#property copyright "Forex Trading Algorithm"
+#property version   "4.0"
+#property strict
+
+
+double input lotsize = 1;     //Lot Size
+int input Max_profit = 12;    //Profit to close 50% (In Pips)
+int input Max_TP = 50;        //Maximum Profit to close all (in Pips)
+
+int magic_Num = 368361123;
+datetime LastTime;
+bool half_closed,monitor,first_trade;
+double final_close_buy,final_close_sell=0;
+//+------------------------------------------------------------------+
+//| Expert initialization function                                   |
+//+------------------------------------------------------------------+
+int OnInit()
+  {
+//---
+  half_closed = false;
+  monitor = false;
+  first_trade = true;
+  
+  if(_Period!=5){
+      Alert("candle timeframe is not 5 mins, Please run the EA on 5 min candle timeframe");
+      ExpertRemove();
+      }
+  LastTime=Time[0];
+//---
+   return(INIT_SUCCEEDED);
+  }
+//+------------------------------------------------------------------+
+//| Expert deinitialization function                                 |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+  {
+//---
+   
+  }
+//+------------------------------------------------------------------+
+//| Expert tick function                                             |
+//+------------------------------------------------------------------+
+void OnTick()
+  {
+//---
+
+  if(( (DayOfWeek()>0 || (DayOfWeek()==0 && Hour()>=21)) &&
+      (DayOfWeek()<4 || (DayOfWeek()==4 && Hour()<12) )) || true )
+      {
+      int Total_active_trades = 0;
+      for(int order=0; order<OrdersTotal(); order++){
+            if(OrderSelect(order,SELECT_BY_POS,MODE_TRADES)){
+               if(OrderSymbol()==Symbol() && OrderCloseTime()==0){
+                  Total_active_trades +=1;
+                  }
+               }
+            }
+      //Print(  LastTime , " = ", LastTime!=Time[0], " = ", Time[0]);
+      if( LastTime!=Time[0] && Total_active_trades==0 && first_trade && !half_closed && !monitor){
+        final_close_buy = Ask+(Max_TP*_Point*10);
+        final_close_sell=Bid-(Max_TP*_Point*10);
+        
+        int ticket_buy = OrderSend(NULL,OP_BUY,lotsize,Ask,3,final_close_sell,final_close_buy,NULL,magic_Num,0,clrGreen);
+        if(ticket_buy == -1) PrintFormat("Buy OrderSend error %d",GetLastError());
+            else {
+            Print("Buy Position opened");
+            }
+        
+        int ticket_sell = OrderSend(NULL,OP_SELL,lotsize,Bid,3,final_close_buy,final_close_sell,NULL,magic_Num,0,clrRed);
+        if(ticket_sell == -1) PrintFormat("Sell OrderSend error %d",GetLastError());
+            else {
+            Print("Sell Position opened");
+            }
+         first_trade=false;
+         half_closed = false;
+         monitor = true;
+         }
+      else if(!first_trade && !half_closed && monitor){
+         for(int order=0; order<OrdersTotal(); order++){
+            if(OrderSelect(order,SELECT_BY_POS,MODE_TRADES)){
+               if(OrderSymbol()==Symbol() && OrderCloseTime()==0 && OrderComment()=="" && OrderLots()==lotsize){
+                  if(OrderType()==OP_BUY && Bid>=OrderOpenPrice()+(Max_profit*_Point*10)){
+                     
+                     
+                     bool ticket_close_buy = OrderClose(OrderTicket(),lotsize/2,Bid,3,clrBlue);
+                     if(!ticket_close_buy) PrintFormat("Buy Closed 50% OrderSend error %d",GetLastError());
+                        else {
+                        Print("Buy Closed 50% Position opened"); 
+                        half_closed = true;
+                        first_trade=false;
+                        monitor = false;
+                        break;
+                        }
+                     }
+                  else if(OrderType()==OP_SELL && Ask<=OrderOpenPrice()-(Max_profit*_Point*10) ){
+                     bool ticket_close_sell = OrderClose(OrderTicket(),lotsize/2,Ask,3,clrBlue);
+                     if(!ticket_close_sell) PrintFormat("Sell Closed 50% OrderSend error %d",GetLastError());
+                        else {
+                        Print("Sell Closed 50% Position opened");
+                        half_closed = true;
+                        first_trade=false;
+                        monitor = false;
+                        break; 
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      else if (!first_trade && half_closed && !monitor){
+         for(int order=0; order<OrdersTotal(); order++){
+            if(OrderSelect(order,SELECT_BY_POS,MODE_TRADES)){
+               if(OrderSymbol()==Symbol() && OrderCloseTime()==0 ){
+                  if(OrderType()==OP_BUY){
+                     bool modify_buy;
+                     if(OrderProfit()>=0)
+                        modify_buy = OrderModify(OrderTicket(),Bid,OrderOpenPrice(),OrderTakeProfit(),0,clrGreen);
+                     else
+                        modify_buy = OrderModify(OrderTicket(),Bid,OrderStopLoss(),OrderOpenPrice(),0,clrGreen);
+                     if(!modify_buy) PrintFormat("Buy Modified OrderSend error %d",GetLastError());
+                        else {
+                        Print("Buy Modified Position opened"); 
+                        }
+                     }
+                  else if(OrderType()==OP_SELL){
+                     bool modify_sell;
+                     if(OrderProfit()>=0)
+                        modify_sell = OrderModify(OrderTicket(),Ask,OrderOpenPrice(),OrderTakeProfit(),0,clrGreen);
+                     else
+                        modify_sell = OrderModify(OrderTicket(),Ask,OrderStopLoss(),OrderOpenPrice(),0,clrGreen);
+                     if(!modify_sell) PrintFormat("Sell Modified OrderSend error %d",GetLastError());
+                        else {
+                        Print("Sell Modified Position opened");
+                        }
+                     }
+                  }
+               }
+            }
+         monitor = false;
+         half_closed = false;
+         first_trade=true;
+         }
+         
+      LastTime=Time[0];
+      }  
+  }
+//+------------------------------------------------------------------+
