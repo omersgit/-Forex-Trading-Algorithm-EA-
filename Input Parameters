@@ -1,0 +1,12 @@
+double input lotsize = X;     //Lot Size
+int input Max_profit = X;    //Profit to close 50% (In Pips)
+int input Max_TP = X;        //Maximum Profit to close all (in Pips)
+
+int magic_Num = 368361123;
+datetime LastTime;
+bool half_closed,monitor,first_trade;
+double final_close_buy,final_close_sell=0;
+//+------------------------------------------------------------------+
+//| Expert initialization function                                   |
+//+------------------------------------------------------------------+
+int OnInit()
