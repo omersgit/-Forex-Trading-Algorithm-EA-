@@ -1,0 +1,23 @@
+
+  if(_Period!=5){
+      Alert("candle timeframe is not 5 mins, Please run the EA on 5 min candle timeframe");
+      ExpertRemove();
+      }
+  LastTime=Time[0];
+//---
+   return(INIT_SUCCEEDED);
+  }
+//+------------------------------------------------------------------+
+//| Expert deinitialization function                                 |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+  {
+//---
+   
+  }
+//+------------------------------------------------------------------+
+//| Expert tick function                                             |
+//+------------------------------------------------------------------+
+void OnTick()
+  {
+//---
