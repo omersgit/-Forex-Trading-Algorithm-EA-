@@ -12,3 +12,4 @@ EA moves x amount of pips in a certain direction, then executes a position in th
 Once price reaches X amuont of pips in either continous direction it will then automatically proceed to close half the position opened and set the current position to breakeven. 
 
 With a Stop Loss of X amount of pips and a TP with X amount the EA is able to create a solid R:R ratio to capilaize on trades and therefore grow any trading account in a steady rate.
+![resized-image-Promo](https://user-images.githubusercontent.com/75466919/174233044-336924a6-141b-44dc-87bd-373edc42f16d.jpeg)
