@@ -15,4 +15,4 @@ With a Stop Loss of X amount of pips and a TP with X amount the EA is able to cr
 
 Backtesting data over 6 months (Jan-May;2022)
 
-![IMG_8272](https://user-images.githubusercontent.com/75466919/174233103-7dc61282-ecac-4269-a89b-dbd5852dae78.JPG)
+![m_merged (1)](https://user-images.githubusercontent.com/75466919/174233289-da0c8481-2601-4518-a0ea-942deef05f46.PNG)
